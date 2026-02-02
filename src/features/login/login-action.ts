@@ -1,6 +1,6 @@
 'use server'
 
-import { auth } from "@/shared/lib/auth/server" // your Better Auth server instance
+import { auth } from "../../shared/lib/auth/server" // your Better Auth server instance
 import { EmailSchema, PasswordSchema } from "./login-validation"
 import { redirect } from "next/navigation"
 

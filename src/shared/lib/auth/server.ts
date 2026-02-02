@@ -1,14 +1,14 @@
 import { betterAuth } from "better-auth/minimal";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { admin } from "better-auth/plugins";
 import { db } from "@/shared/lib/drizzle";
 import { nextCookies } from "better-auth/next-js";
 import { user, session, account, verification } from "@/shared/db/schema/auth";
 import { env } from "@/shared/config/env";
 
+
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
-    provider: "pg",
+    provider: "sqlite",
     schema: {
       user: user,
       session: session,
@@ -34,6 +34,5 @@ export const auth = betterAuth({
   },
   plugins: [
     nextCookies(),
-    admin(),
   ],
 });
