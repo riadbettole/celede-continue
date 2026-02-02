@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Upload, Loader2, CheckCircle, XCircle } from "lucide-react";
 import { validatePDFFile } from "../file-validation";
 import { uploadPDFToS3 } from "../actions/upload-action";
 import { syncKnowledgeBase } from "../actions/sync-action";
+import { SyncStatusTracker } from "./sync-status";
 import clsx from "clsx";
 import { Button } from "@/shared/components/ui/button";
 
@@ -12,6 +13,7 @@ export function UploadForm() {
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [syncing, setSyncing] = useState(false);
+  const [syncJobId, setSyncJobId] = useState<string | null>(null);
   const [uploadStatus, setUploadStatus] = useState<{
     type: "success" | "error" | null;
     message: string;
@@ -24,6 +26,7 @@ export function UploadForm() {
       if (validation.valid) {
         setFile(selectedFile);
         setUploadStatus({ type: null, message: "" });
+        setSyncJobId(null);
       } else {
         setUploadStatus({ type: "error", message: validation.error || "" });
         setFile(null);
@@ -41,6 +44,7 @@ export function UploadForm() {
 
     setUploading(true);
     setUploadStatus({ type: null, message: "" });
+    setSyncJobId(null);
 
     try {
       const formData = new FormData();
@@ -53,22 +57,18 @@ export function UploadForm() {
           type: "error",
           message: uploadResult.error || "Upload failed",
         });
+        setUploading(false);
         return;
       }
 
-      setUploadStatus({
-        type: "success",
-        message: "File uploaded successfully!",
-      });
-
-      // Auto-sync knowledge base
       setSyncing(true);
       const syncResult = await syncKnowledgeBase();
 
-      if (syncResult.success) {
+      if (syncResult.success && syncResult.jobId) {
+        setSyncJobId(syncResult.jobId);
         setUploadStatus({
           type: "success",
-          message: `File uploaded and knowledge base sync started! Job ID: ${syncResult.jobId}`,
+          message: "File uploaded successfully!",
         });
       } else {
         setUploadStatus({
@@ -77,7 +77,6 @@ export function UploadForm() {
         });
       }
 
-      // Reset form
       setFile(null);
       const fileInput = document.getElementById(
         "file-upload"
@@ -93,6 +92,10 @@ export function UploadForm() {
       setSyncing(false);
     }
   };
+
+  const handleSyncComplete = useCallback(() => {
+    setSyncJobId(null);
+  }, []);
 
   return (
     <div className="w-full max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
@@ -162,6 +165,10 @@ export function UploadForm() {
             )}
             <p>{uploadStatus.message}</p>
           </div>
+        )}
+
+        {syncJobId && (
+          <SyncStatusTracker jobId={syncJobId} onComplete={handleSyncComplete} />
         )}
       </form>
     </div>
