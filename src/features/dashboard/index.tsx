@@ -5,26 +5,33 @@ import { LogoutButton } from "./components/logout-button";
 
 export default function DashboardPage() {
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
-      <div className="max-w-7xl mx-auto space-y-12">
-        <div className="flex justify-between items-start">
-          <div className="text-center flex-1">
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">
-              AWS Bedrock Knowledge Base
-            </h1>
-            <p className="text-gray-600">
-              Upload documents and query them with AI
-            </p>
+    <div className="min-h-screen bg-gray-50">
+      {/* Compact Header */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+          <div>
+            <h1 className="text-xl font-bold text-gray-900">Knowledge Base</h1>
           </div>
           <LogoutButton />
         </div>
+      </div>
 
-        <div className="grid md:grid-cols-2 gap-8">
-          <UploadForm />
-          <QueryInterface />
+      {/* Tight Content Grid */}
+      <div className="max-w-6xl mx-auto px-6 py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+          {/* Left: Upload - Compact */}
+          <div className="lg:col-span-2">
+            <UploadForm />
+          </div>
+
+          {/* Right: Query - More space */}
+          <div className="lg:col-span-3">
+            <QueryInterface />
+          </div>
         </div>
 
-        <div className="mt-12">
+        {/* Full width files below */}
+        <div className="mt-6">
           <FileManager />
         </div>
       </div>
